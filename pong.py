@@ -11,6 +11,8 @@ PADDLE_SPEED = 10
 BALL_SCALE = .05
 BALL_SPEED = 3
 
+DEBUG_COUNTER = 0
+
 class MyGame(arcade.Window):
 
     def __init__(self, width, height):
@@ -18,13 +20,17 @@ class MyGame(arcade.Window):
 
         arcade.set_background_color(arcade.color.BLACK)
         self.running = True
+        self.hitWall = False;
 
     def setup(self):
         self.all_sprites = arcade.SpriteList()
 
         self.paddle_left = arcade.Sprite("paddle.png", PADDLE_SCALE)
+        new_bound = [(-9, 48), (9, 48), (9, -48), (-9, -48)]
+        self.paddle_left.set_points(new_bound)
         self.paddle_left.center_x = SCREEN_WIDTH/8
         self.paddle_left.center_y = SCREEN_HEIGHT/2
+        print(self.paddle_left.get_points())
         self.all_sprites.append(self.paddle_left)
 
         self.ball = arcade.Sprite("ball.png", BALL_SCALE)
@@ -50,9 +56,13 @@ class MyGame(arcade.Window):
         self.ball.center_y += self.ball.change_y
 
     def on_draw(self):
+        global DEBUG_COUNTER
         if self.running:
             arcade.start_render()
             self.all_sprites.draw()
+            if DEBUG_COUNTER == 0:
+                print(self.paddle_left.get_points())
+            DEBUG_COUNTER+=1
 
     def update(self, delta_time):
         if self.running:
@@ -67,7 +77,7 @@ class MyGame(arcade.Window):
             if self.bottom_wall in pl_hit:
                 self.paddle_left.center_y = self.bottom_wall.center_y + self.bottom_wall.height / 2 + self.paddle_left.height / 2
             if self.ball in pl_hit:
-                self.running = False
+                self.ball.change_x = -self.ball.change_x
 
 
     def on_key_press(self, key, modifiers):
